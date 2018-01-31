@@ -13,6 +13,8 @@
 		96A34574201A21CA00446381 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 96A34573201A21CA00446381 /* Assets.xcassets */; };
 		96A34577201A21CA00446381 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 96A34575201A21CA00446381 /* LaunchScreen.storyboard */; };
 		96A34582201A21CA00446381 /* FLPopMenuUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A34581201A21CA00446381 /* FLPopMenuUITests.swift */; };
+		96A3458E201A221D00446381 /* FLPopMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A3458D201A221D00446381 /* FLPopMenu.swift */; };
+		96A34590201A246100446381 /* FLMenuItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A3458F201A246100446381 /* FLMenuItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +38,8 @@
 		96A3457D201A21CA00446381 /* FLPopMenuUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FLPopMenuUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		96A34581201A21CA00446381 /* FLPopMenuUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FLPopMenuUITests.swift; sourceTree = "<group>"; };
 		96A34583201A21CA00446381 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		96A3458D201A221D00446381 /* FLPopMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FLPopMenu.swift; sourceTree = "<group>"; };
+		96A3458F201A246100446381 /* FLMenuItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FLMenuItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +81,7 @@
 		96A3456B201A21CA00446381 /* FLPopMenu */ = {
 			isa = PBXGroup;
 			children = (
+				96A3458C201A21FE00446381 /* Classes */,
 				96A3456C201A21CA00446381 /* AppDelegate.swift */,
 				96A3456E201A21CA00446381 /* ViewController.swift */,
 				96A34570201A21CA00446381 /* Main.storyboard */,
@@ -94,6 +99,15 @@
 				96A34583201A21CA00446381 /* Info.plist */,
 			);
 			path = FLPopMenuUITests;
+			sourceTree = "<group>";
+		};
+		96A3458C201A21FE00446381 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				96A3458D201A221D00446381 /* FLPopMenu.swift */,
+				96A3458F201A246100446381 /* FLMenuItem.swift */,
+			);
+			path = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -200,6 +214,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				96A3456F201A21CA00446381 /* ViewController.swift in Sources */,
+				96A34590201A246100446381 /* FLMenuItem.swift in Sources */,
+				96A3458E201A221D00446381 /* FLPopMenu.swift in Sources */,
 				96A3456D201A21CA00446381 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
