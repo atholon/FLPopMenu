@@ -12,7 +12,7 @@ import UIKit
 // MARK: - 默认设置 ////////////////////////////////////////////////////
 
 // 字体大小
-let gTextFontSize:CGFloat = 12.0
+let gTextFontSize:CGFloat = 16.0
 // 文字对齐方式
 let gAlignment:NSTextAlignment = .left
 // 文字颜色
@@ -72,6 +72,8 @@ class FLMenuView:UIView{
     var overlayView:UIView?
     // 内容view
     var contentView:UIView?
+    // Menu按钮对象数组
+    var menuIrems:[FLMenuItem] = [FLMenuItem]()
     // 文本字体
     var textFont:UIFont = FLPopMenu.textFont
     // 箭头方向
@@ -79,8 +81,7 @@ class FLMenuView:UIView{
     // 箭头位置
     var arrowPosition:CGFloat = 0.0
     
-    // Menu按钮对象数组
-    //var menuIrems:[FLMenuItem] = [FLMenuItem]()
+    
     // 被选择按钮对象
     //var selectedItem
     
@@ -106,6 +107,9 @@ class FLMenuView:UIView{
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        print("MenuView被注销！")
+    }
     
     // MARK: - 接口函数  //////////////////////////////////////////////////////
     
@@ -115,7 +119,8 @@ class FLMenuView:UIView{
             print("MenuItems无内容！")
             contentView = nil
         }else{
-            contentView = makeContentView(items:items)
+            menuIrems = items
+            contentView = makeContentView()
             print(contentView?.frame)
         }
     }
@@ -148,14 +153,14 @@ class FLMenuView:UIView{
     // MARK: - 私有函数 ///////////////////////////////////////////////////////
     
     // 生成contentView
-    func makeContentView(items:[FLMenuItem]) -> UIView {
+    func makeContentView() -> UIView {
         print("开始制作ContentView")
         // 计算最长文字的size，初始为（0，0）
         var textSize = CGSize.zero
         
         // 检查是否有包含图标的item
         var hasIcon = false
-        for item in items {
+        for item in menuIrems {
             if item.image != nil {
                 hasIcon = true
             }
@@ -182,38 +187,45 @@ class FLMenuView:UIView{
         let itemHeight = FLPopMenu.vMargin * 2 + textSize.height + vPlusForImg
         let itemWidth = FLPopMenu.lMargin * 2 + lPlusForImg + textSize.width
         // 计算contentRect
-        let contentRect = CGRect(x: 0, y: 0, width: itemWidth, height: itemHeight * CGFloat(items.count))
+        let contentRect = CGRect(x: 0, y: 0, width: itemWidth, height: itemHeight * CGFloat(menuIrems.count))
         // 生成contentView
         let contentView = UIView(frame: contentRect)
         
-        for i in 0 ..< items.count {
+        for i in 0 ..< menuIrems.count {
             var textRect:CGRect
             var img:UIImageView
-            if items[i].image != nil { // 有图标
+            if menuIrems[i].image != nil { // 有图标
                 let imgRect = CGRect(x: FLPopMenu.lMargin, y: CGFloat(i) * itemHeight + FLPopMenu.vMargin, width: textSize.height + 2.0, height: textSize.height + 2.0)
                 img = UIImageView(frame: imgRect)
                 img.adjustsImageSizeForAccessibilityContentSizeCategory = false
-                img.image = items[i].image
+                img.image = menuIrems[i].image
+                
+                //测试用
+                img.backgroundColor = UIColor.lightGray
+                
                 contentView.addSubview(img)
                 // 定位文字Label
                 let origin = CGPoint(x:textLabX,y:CGFloat(i) * itemHeight + FLPopMenu.vMargin + 2.0)
-                let size = items[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
+                let size = menuIrems[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
                 textRect = CGRect(origin: origin, size: size)
             }else{ // 无图标
                 let origin = CGPoint(x:textLabX,y:CGFloat(i) * itemHeight + FLPopMenu.vMargin)
-                let size = items[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
+                let size = menuIrems[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
                 textRect = CGRect(origin: origin, size: size)
             }
             
             let textLabel = UILabel(frame: textRect)
-            textLabel.text = items[i].title
+            textLabel.text = menuIrems[i].title
             textLabel.textColor = FLPopMenu.textColor
             textLabel.font = FLPopMenu.textFont
             textLabel.textAlignment = FLPopMenu.alignment
             
+            //测试用
+            textLabel.backgroundColor = UIColor.lightGray
+            
             contentView.addSubview(textLabel)
             
-            if i < items.count - 1 {
+            if i < menuIrems.count - 1 {
                 let origin = CGPoint(x: FLPopMenu.lMargin, y: CGFloat(i + 1) * itemHeight - 0.5)
                 let size = CGSize(width: itemWidth - FLPopMenu.lMargin * 2.0, height: 0.5)
                 let seperator = UILabel(frame: CGRect(origin: origin, size: size))
@@ -224,7 +236,8 @@ class FLMenuView:UIView{
             // 添加按钮
             let btnRect = CGRect(x: 0, y: CGFloat(i) * itemHeight, width: itemWidth, height: itemHeight)
             let btn = UIButton(frame: btnRect)
-            btn.addTarget(items[i].target, action: items[i].action!, for: .touchUpInside)
+            btn.tag = i
+            btn.addTarget(self, action: #selector(performAction), for: .touchUpInside)
             //btn.backgroundColor = UIColor.blue
             contentView.addSubview(btn)
         }
@@ -561,10 +574,15 @@ class FLMenuView:UIView{
     }
     
     // 响应按钮点击，传递消息
-    func performAction(sender:Any?){
+    @objc func performAction(sender:Any?){
         self.dismissMenu(animated: true)
         let btn = sender as! UIButton
-        btn.sendActions(for: .touchUpInside)
+        let target = menuIrems[btn.tag].target as AnyObject
+        let action = menuIrems[btn.tag].action
+        if  target.responds(to: action) {
+            target.performSelector(onMainThread: action!, with: self, waitUntilDone: true)
+        }
+        
     }
     
     

@@ -50,7 +50,7 @@ class FLMenuItem:NSObject{
     }
     
     deinit{
-        print("菜单项：\(self.title)被注销！")
+        print("菜单项：“\(self.title)”被注销！")
     }
     
     
