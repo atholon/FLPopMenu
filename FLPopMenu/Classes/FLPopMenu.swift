@@ -77,7 +77,7 @@ class FLMenuView:UIView{
     // 文本字体
     var textFont:UIFont = FLPopMenu.textFont
     // 箭头方向
-    var arrowDirection:FLMenuViewArrowDirection = .down
+    var arrowDirection:FLMenuViewArrowDirection = FLPopMenu.arrowDirection
     // 箭头位置
     var arrowPosition:CGFloat = 0.0
     
@@ -132,20 +132,31 @@ class FLMenuView:UIView{
         print(contentView?.frame)
         let overlay = FLMenuOverlay(frame: view.frame)
         self.addSubview(contentView!)
+        
         overlay.addSubview(self)
         view.addSubview(overlay)
         
-        contentView?.isHidden = true
+        //contentView?.isHidden = false
+        //contentView?.layer.anchorPoint = CGPoint(x: 0, y: 0)
+        //contentView?.transform = CGAffineTransform(a: 0.1, b: 0, c: 0, d: 0.1, tx: 0, ty: 0)
+        //contentView?.alpha = 0.0
         
-        let toFrame = self.frame
-        self.frame = CGRect(origin: arrowPoint(), size: CGSize(width: 1.0, height: 1.0))
-        
+        //let toFrame = self.frame
+        //self.frame = CGRect(origin: arrowPoint(), size: CGSize(width: toFrame.size.width * 0.1 , height: toFrame.size.height * 0.1))
+        //self.transform = CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0.5)
+        //let lOffset:CGFloat = -1 * self.frame.size.width / 2 + arrowPosition
+        //let vOffset:CGFloat = self.frame.size.height / 2
+        //let anchor:CGFloat = arrowPosition / self.frame.width
+        //self.layer.anchorPoint = CGPoint(x: anchor, y: 1)
+        self.transform = CGAffineTransform(a: 0.1, b: 0, c: 0, d: 0.1, tx: 0, ty: 0)
         UIView.animate(withDuration: 0.2, animations: {
             self.alpha = 1.0
-            self.frame = toFrame
-        }, completion:{ _ in
-            self.contentView?.isHidden = false
-        })
+            //self.transform = CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: lOffset, ty: vOffset)
+            self.transform = CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0)
+            //self.frame = toFrame
+            //self.contentView?.alpha = 1.0
+            //self.contentView?.transform = CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0)
+        }, completion:nil)
     }
     
     
@@ -284,7 +295,11 @@ class FLMenuView:UIView{
             arrowPosition = rectXM - point.x
             contentView?.frame.origin.y = FLPopMenu.arrowSize
             
-            self.frame = CGRect(origin: point, size: CGSize(width: contentSize.width, height: contentSize.height + FLPopMenu.arrowSize))
+            self.frame = CGRect(origin: point, size: CGSize(width: contentSize.width, height: heightPlusArrow))
+            // 设置锚点并恢复frame
+            let oldFrame = self.frame
+            self.layer.anchorPoint = CGPoint(x: arrowPosition / contentSize.width, y: 0)
+            self.frame = oldFrame
         case .down:
             var point = CGPoint(x: rectXM - widthHalf, y: rectY0 - heightPlusArrow - 3)
             
@@ -298,6 +313,10 @@ class FLMenuView:UIView{
             
             arrowPosition = rectXM - point.x
             self.frame = CGRect(origin: point, size: CGSize(width: contentSize.width, height: contentSize.height + FLPopMenu.arrowSize))
+            // 设置锚点并恢复frame
+            let oldFrame = self.frame
+            self.layer.anchorPoint = CGPoint(x: arrowPosition / contentSize.width, y: 1)
+            self.frame = oldFrame
         case .left:
             var point = CGPoint(x: rectX1 + 3, y: rectYM - heightHalf)
             
@@ -313,6 +332,10 @@ class FLMenuView:UIView{
             contentView?.frame.origin.x = FLPopMenu.arrowSize
             
             self.frame = CGRect(origin: point, size: CGSize(width: contentSize.width + FLPopMenu.arrowSize, height: contentSize.height))
+            // 设置锚点并恢复frame
+            let oldFrame = self.frame
+            self.layer.anchorPoint = CGPoint(x: 0, y: arrowPosition / contentSize.height)
+            self.frame = oldFrame
         case .right:
             var point = CGPoint(x: rectX0 - widthPlusArrow - 3, y: rectYM - heightHalf)
             
@@ -327,6 +350,10 @@ class FLMenuView:UIView{
             arrowPosition = rectYM - point.y
             
             self.frame = CGRect(origin: point, size: CGSize(width: contentSize.width + FLPopMenu.arrowSize, height: contentSize.height))
+            // 设置锚点并恢复frame
+            let oldFrame = self.frame
+            self.layer.anchorPoint = CGPoint(x: 1, y: arrowPosition / contentSize.height)
+            self.frame = oldFrame
         case .none:
             self.frame = CGRect(origin: CGPoint(x:(outerWidth - contentSize.width) * 0.5,y:(outerHeight - contentSize.height) * 0.5), size: contentSize)
         
@@ -601,11 +628,13 @@ class FLMenuView:UIView{
             }
             
             if animated {
-                contentView?.isHidden = true
-                let toFrame = CGRect(origin: self.arrowPoint(), size: CGSize(width: 1.0, height: 1.0))
+                //contentView?.isHidden = true
+                //let toFrame = CGRect(origin: self.arrowPoint(), size: CGSize(width: 1.0, height: 1.0))
+                
                 UIView.animate(withDuration: 0.2, animations: {
                     self.alpha = 0
-                    self.frame = toFrame
+                    self.transform = CGAffineTransform(a: 0.1, b: 0, c: 0, d: 0.1, tx: 0, ty: 0)
+                    //self.frame = toFrame
                 }, completion: { finished in
                     removeView()
                 })
@@ -645,7 +674,7 @@ class FLPopMenu:NSObject{
     // 箭头尺寸
     static var arrowSize:CGFloat = 8.0
     // 箭头方向
-    var arrowDirection:FLMenuViewArrowDirection = .down
+    static var arrowDirection:FLMenuViewArrowDirection = .down
     // 垂直边距
     static var vMargin:CGFloat = gVMargin
     // 水平边距

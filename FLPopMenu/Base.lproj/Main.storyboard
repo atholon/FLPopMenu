@@ -19,11 +19,12 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pa7-IL-sYj">
-                                <rect key="frame" x="128" y="479" width="46" height="30"/>
+                                <rect key="frame" x="334" y="20" width="41" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="1" green="0.83214293536316353" blue="0.014690225509945143" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Button"/>
                                 <connections>
-                                    <action selector="btnTapped" destination="BYZ-38-t0r" eventType="touchUpInside" id="9To-OK-Mbt"/>
+                                    <action selector="btnTappedWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ea7-ID-W5j"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -33,6 +34,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="116" y="118.29085457271366"/>
         </scene>
     </scenes>
 </document>
