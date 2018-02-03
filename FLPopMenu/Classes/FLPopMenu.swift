@@ -707,7 +707,7 @@ class FLPopMenu:NSObject{
     // MARK: - 接口函数/////////////////////////////////////////////
     
     // 显示PopMenu
-    func show(withIN view:UIView,fromRect rect:CGRect,animated:Bool = true){
+    func show(withIN view:UIView,fromRect rect:CGRect,items:[FLMenuItem],animated:Bool = true){
 //        if menuView != nil {
 //            menuView?.dismissMenu(animated: false)
 //            menuView = nil
@@ -720,10 +720,18 @@ class FLPopMenu:NSObject{
         
         // 创建 MenuView
         //menuView = FLMenuView()
+        
+        // 添加menuItems
+        addItems(items: items)
+        // 调用menuView的函数，显示菜单
         menuView?.showMenuInView(view: view, fromRect: rect,animated:animated)
         self.isShow = true
     }
     
+    
+    
+    
+    // MARK: - 私有函数///////////////////////////////////////////////
     
     // 向Menu中添加Item
     func addItems (items:[FLMenuItem]) {
@@ -740,8 +748,6 @@ class FLPopMenu:NSObject{
     }
     
 
-    
-    // MARK: - 私有函数///////////////////////////////////////////////
     // 重置属性
     func reset(){
         

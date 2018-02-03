@@ -35,12 +35,12 @@ class ViewController: UIViewController {
         
         let btn3 = FLMenuItem(title: "我是三号，我有图标", image: #imageLiteral(resourceName: "Image"), target: self, action: #selector(menuTapped))
         FLPopMenu.arrowDirection = .up
-        popMenu.addItems(items: [btn1,btn2,btn3])
+        //popMenu.addItems(items: [btn1,btn2,btn3])
         
         print("回到主界面啦！")
         print(popMenu.menuView?.contentView?.frame)
         let btn = sender as! UIButton
-        popMenu.show(withIN: self.view, fromRect:btn.frame)
+        popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
         
         //测试动画
 //        let labBase = UIView(frame: CGRect(x: 50, y: 50, width: 100, height: 30))
