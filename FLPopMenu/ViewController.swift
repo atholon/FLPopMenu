@@ -19,6 +19,7 @@ class ViewController: UIViewController {
 //        btn.backgroundColor = UIColor.brown
 //        btn.addTarget(self, action: #selector(menuTapped), for: .touchUpInside)
 //        self.view.addSubview(btn)
+        self.navigationController?.setToolbarHidden(false, animated: false)
     }
 
     override func didReceiveMemoryWarning() {
@@ -30,12 +31,11 @@ class ViewController: UIViewController {
     
     @IBAction func btnTapped(sender:Any?){
         let popMenu = FLPopMenu.shared
-        let btn1 = FLMenuItem(title: "我是一号", target: self, action: #selector(menuTapped))
-        let btn2 = FLMenuItem(title: "我是二号,我比较长", target: self, action: #selector(menuTapped))
+        let btn1 = FLMenuItem(title: "我是一号", target: self, action: #selector(menu1Tapped))
+        let btn2 = FLMenuItem(title: "我是二号,我比较长", target: self, action: #selector(menu2Tapped))
         
-        let btn3 = FLMenuItem(title: "我是三号，我有图标", image: #imageLiteral(resourceName: "Image"), target: self, action: #selector(menuTapped))
-        FLPopMenu.arrowDirection = .up
-        //popMenu.addItems(items: [btn1,btn2,btn3])
+        let btn3 = FLMenuItem(title: "我是三号，我有图标", image: #imageLiteral(resourceName: "Image"), target: self, action: #selector(menu3Tapped))
+        
         
         print("回到主界面啦！")
         print(popMenu.menuView?.contentView?.frame)
@@ -57,9 +57,81 @@ class ViewController: UIViewController {
         
     }
     
+    @IBAction func btnLUTapped(sender:Any?){
+        let popMenu = FLPopMenu.shared
+        let btn1 = FLMenuItem(title: "我是一号", target: self, action: #selector(menu1Tapped))
+        let btn2 = FLMenuItem(title: "我是二号,我比较长", target: self, action: #selector(menu2Tapped))
+        
+        let btn3 = FLMenuItem(title: "我是三号，我有图标", image: #imageLiteral(resourceName: "Image"), target: self, action: #selector(menu3Tapped))
+        FLPopMenu.arrowDirection = .left
+        FLPopMenu.tintColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
+        print("回到主界面啦！")
+        print(popMenu.menuView?.contentView?.frame)
+        let btn = sender as! UIButton
+        
+        popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
+        
+    }
     
-    @objc func menuTapped() {
-        print("我被点啦！")
+    @IBAction func btnRUTapped(sender:Any?){
+        let popMenu = FLPopMenu.shared
+        let btn1 = FLMenuItem(title: "我是一号", target: self, action: #selector(menu1Tapped))
+        let btn2 = FLMenuItem(title: "我是二号,我比较长", target: self, action: #selector(menu2Tapped))
+        
+        let btn3 = FLMenuItem(title: "我是三号，我有图标", image: #imageLiteral(resourceName: "Image"), target: self, action: #selector(menu3Tapped))
+        FLPopMenu.arrowDirection = .up
+        FLPopMenu.textColor = UIColor.red
+        
+        print("回到主界面啦！")
+        print(popMenu.menuView?.contentView?.frame)
+        let btn = sender as! UIButton
+        popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
+        
+    }
+    
+    @IBAction func btnRDTapped(sender:Any?){
+        let popMenu = FLPopMenu.shared
+        let btn1 = FLMenuItem(title: "我是一号", target: self, action: #selector(menu1Tapped))
+        let btn2 = FLMenuItem(title: "我是二号,我比较长", target: self, action: #selector(menu2Tapped))
+        
+        let btn3 = FLMenuItem(title: "我是三号，我有图标", image: #imageLiteral(resourceName: "Image"), target: self, action: #selector(menu3Tapped))
+        FLPopMenu.arrowDirection = .right
+        FLPopMenu.backgrounColorEffect = .Gradient
+        
+        print("回到主界面啦！")
+        print(popMenu.menuView?.contentView?.frame)
+        let btn = sender as! UIButton
+        popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
+        
+    }
+    
+    @IBAction func btnCTapped(sender:Any?){
+        let popMenu = FLPopMenu.shared
+        let btn1 = FLMenuItem(title: "我是一号", target: self, action: #selector(menu1Tapped))
+        let btn2 = FLMenuItem(title: "我是二号,我比较长", target: self, action: #selector(menu2Tapped))
+        
+        let btn3 = FLMenuItem(title: "我是三号，我有图标", image: #imageLiteral(resourceName: "Image"), target: self, action: #selector(menu3Tapped))
+        FLPopMenu.arrowDirection = .none
+        FLPopMenu.textFont = UIFont.systemFont(ofSize: 20)
+        
+        print("回到主界面啦！")
+        print(popMenu.menuView?.contentView?.frame)
+        let btn = sender as! UIButton
+        popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
+        
+    }
+    
+    
+    @objc func menu1Tapped() {
+        print("一号被点啦！")
+    }
+    
+    @objc func menu2Tapped() {
+        print("二号被点啦！")
+    }
+    
+    @objc func menu3Tapped() {
+        print("三号被点啦！")
     }
 
 

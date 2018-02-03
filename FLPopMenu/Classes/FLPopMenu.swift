@@ -11,16 +11,32 @@ import UIKit
 
 // MARK: - 默认设置 ////////////////////////////////////////////////////
 
+// 主题颜色
+let gTintColor:UIColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
+// 阴影颜色
+let gShadowColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1)
+// 文字颜色
+let gTextColor:UIColor = UIColor.black
 // 字体大小
 let gTextFontSize:CGFloat = 16.0
 // 文字对齐方式
 let gAlignment:NSTextAlignment = .left
-// 文字颜色
-let gTextColor = UIColor.black
 // 垂直边距
 let gVMargin:CGFloat = 5.0
 // 水平边距
 let gLMargin:CGFloat = 8.0
+// 圆角半径
+let gCornerRadius:CGFloat = 4.0
+// 箭头大小
+let gArrowSize:CGFloat = 8.0
+// 是否阴影
+let gHasShadow:Bool = true
+// 箭头方向
+let gArrowDirection:FLMenuViewArrowDirection = .down
+// 分割线颜色
+let gSeparatorColor:UIColor = UIColor(red: 0.75, green: 0.75, blue: 0.75, alpha: 1.0)
+// 背景效果
+let gBackgrounColorEffect:FLMenuBackgrounColorEffect = .solid
 
 
 enum FLMenuBackgrounColorEffect {
@@ -261,6 +277,11 @@ class FLMenuView:UIView{
         if contentView == nil {
             return
         }
+        print("状态栏高度：\(UIApplication.shared.statusBarFrame.height)")
+        //let statusBarHeight = UIApplication.shared.statusBarFrame.height
+        let topInset = view.safeAreaInsets.top
+        let bottomInset = view.safeAreaInsets.bottom
+        
         let contentSize = contentView!.frame.size
         
         let outerWidth:CGFloat = view.bounds.size.width
@@ -320,12 +341,12 @@ class FLMenuView:UIView{
         case .left:
             var point = CGPoint(x: rectX1 + 3, y: rectYM - heightHalf)
             
-            if point.y < kMargin {
-                point.y = kMargin
+            if point.y < kMargin + topInset {
+                point.y = kMargin + topInset
             }
             
-            if (point.y + contentSize.height + kMargin) > outerHeight {
-                point.y = outerHeight - contentSize.height - kMargin
+            if (point.y + contentSize.height + kMargin) > outerHeight - bottomInset {
+                point.y = outerHeight - bottomInset - contentSize.height - kMargin
             }
             
             arrowPosition = rectYM - point.y
@@ -339,12 +360,12 @@ class FLMenuView:UIView{
         case .right:
             var point = CGPoint(x: rectX0 - widthPlusArrow - 3, y: rectYM - heightHalf)
             
-            if point.y < kMargin {
-                point.y = kMargin
+            if point.y < kMargin + topInset {
+                point.y = kMargin + topInset
             }
             
-            if (point.y + contentSize.height + kMargin) > outerHeight {
-                point.y = outerHeight - contentSize.height - kMargin
+            if (point.y + contentSize.height + kMargin) > outerHeight - bottomInset {
+                point.y = outerHeight - bottomInset - contentSize.height - kMargin
             }
             
             arrowPosition = rectYM - point.y
@@ -355,7 +376,26 @@ class FLMenuView:UIView{
             self.layer.anchorPoint = CGPoint(x: 1, y: arrowPosition / contentSize.height)
             self.frame = oldFrame
         case .none:
-            self.frame = CGRect(origin: CGPoint(x:(outerWidth - contentSize.width) * 0.5,y:(outerHeight - contentSize.height) * 0.5), size: contentSize)
+            var point = CGPoint(x: rectXM - widthHalf, y: rectYM - heightHalf)
+            
+            if point.x < kMargin {
+                point.x = kMargin
+            }
+            
+            if (point.x + contentSize.width + kMargin) > outerWidth {
+                point.x = outerWidth - contentSize.width - kMargin
+            }
+            
+            if point.y < kMargin + topInset {
+                point.y = kMargin + topInset
+            }
+            
+            if (point.y + contentSize.height + kMargin) > outerHeight - bottomInset {
+                point.y = outerHeight - bottomInset - contentSize.height - kMargin
+            }
+            
+            self.frame = CGRect(origin: point, size: contentSize)
+            
         
         }
         
@@ -443,6 +483,7 @@ class FLMenuView:UIView{
             drawBackground(withIn: self.bounds, inContext: context!)
             
         }
+        FLPopMenu.reset()
         
     }
     
@@ -457,7 +498,7 @@ class FLMenuView:UIView{
         var a:CGFloat = 0.0
         tintColor.getRed(&R0, green: &G0, blue: &B0, alpha: &a)
         tintColor.getRed(&R1, green: &G1, blue: &B1, alpha: &a)
-        
+        print(R0)
         if FLPopMenu.backgrounColorEffect == .Gradient {
             R1 -= 0.2
             G1 -= 0.2
@@ -658,39 +699,42 @@ class FLPopMenu:NSObject{
     var menuView:FLMenuView?
     // 是否被监听
     var isObserving = false
+    // 视图当前是否显示
+    var isShow:Bool = false
     
     // 主题颜色
-    static var tintColor:UIColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
+    static var tintColor:UIColor = gTintColor
     // 阴影颜色
-    static var shadowColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1)
+    static var shadowColor = gShadowColor
     // 文字颜色
-    static var textColor:UIColor = UIColor.black
+    static var textColor:UIColor = gTextColor
     // 标题字体
     static var textFont:UIFont = UIFont.systemFont(ofSize: gTextFontSize)
     // 文字对齐方式
     static var alignment:NSTextAlignment = gAlignment
     // 圆角尺寸
-    static var cornerRadius:CGFloat = 4.0
+    static var cornerRadius:CGFloat = gCornerRadius
     // 箭头尺寸
-    static var arrowSize:CGFloat = 8.0
+    static var arrowSize:CGFloat = gArrowSize
     // 箭头方向
-    static var arrowDirection:FLMenuViewArrowDirection = .down
+    static var arrowDirection:FLMenuViewArrowDirection = gArrowDirection
     // 垂直边距
     static var vMargin:CGFloat = gVMargin
     // 水平边距
     static var lMargin:CGFloat = gLMargin
     // 背景效果
-    static var backgrounColorEffect:FLMenuBackgrounColorEffect = .solid
+    static var backgrounColorEffect:FLMenuBackgrounColorEffect = gBackgrounColorEffect
     // 是否显示阴影
-    static var hasShadow:Bool = true
+    static var hasShadow:Bool = gHasShadow
     // 选中颜色
     //var selectedColor:UIColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0)
     // 分割线颜色
-    static var separatorColor:UIColor = UIColor(red: 0.75, green: 0.75, blue: 0.75, alpha: 1.0)
+    static var separatorColor:UIColor = gSeparatorColor
+    
+    
     // 菜单元素垂直方向上的边距值
     //var menuItemMarginY:CGFloat = 12.0
-    // 视图当前是否显示
-    var isShow:Bool = false
+    
     
     // MARK: - 构造，析构函数//////////////////////////////////////////
     
@@ -726,6 +770,7 @@ class FLPopMenu:NSObject{
         // 调用menuView的函数，显示菜单
         menuView?.showMenuInView(view: view, fromRect: rect,animated:animated)
         self.isShow = true
+        
     }
     
     
@@ -749,8 +794,20 @@ class FLPopMenu:NSObject{
     
 
     // 重置属性
-    func reset(){
-        
+    class func reset(){
+        FLPopMenu.tintColor = gTintColor
+        FLPopMenu.shadowColor = gShadowColor
+        FLPopMenu.textColor = gTextColor
+        FLPopMenu.textFont = UIFont.systemFont(ofSize: gTextFontSize)
+        FLPopMenu.alignment = gAlignment
+        FLPopMenu.cornerRadius = gCornerRadius
+        FLPopMenu.arrowSize = gArrowSize
+        FLPopMenu.arrowDirection = gArrowDirection
+        FLPopMenu.vMargin = gVMargin
+        FLPopMenu.lMargin = gLMargin
+        FLPopMenu.backgrounColorEffect = gBackgrounColorEffect
+        FLPopMenu.hasShadow = gHasShadow
+        FLPopMenu.separatorColor = gSeparatorColor
     }
     
     
@@ -767,7 +824,7 @@ class FLPopMenu:NSObject{
     // MARK: - 监听///////////////////////////////////////////////////
     
     @objc func orientationWillChange(notification:Notification) {
-        self.dismissMenu()
+        dismissMenu()
     }
         
 }
