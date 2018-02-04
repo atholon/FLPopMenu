@@ -6,6 +6,11 @@
 //  Copyright © 2018年 Atholon. All rights reserved.
 //
 
+
+// 存在问题：
+// 1.只能在menuView类中dismiss菜单，导致menuView实例无法注销。
+
+
 import Foundation
 import UIKit
 
