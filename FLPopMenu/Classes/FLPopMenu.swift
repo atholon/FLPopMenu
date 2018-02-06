@@ -8,48 +8,50 @@
 
 
 // 存在问题：
-// 1.只能在menuView类中dismiss菜单，导致menuView实例无法注销。
+//
 
 
 import Foundation
 import UIKit
 
-// MARK: - 默认设置 ////////////////////////////////////////////////////
+/// MARK: - 默认设置全局变量 ////////////////////////////////////////////////////
 
-// 主题颜色
+/// 主题颜色
 let gTintColor:UIColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
-// 阴影颜色
+/// 阴影颜色
 let gShadowColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1)
-// 文字颜色
+/// 文字颜色
 let gTextColor:UIColor = UIColor.black
-// 字体大小
+/// 字体大小
 let gTextFontSize:CGFloat = 16.0
-// 文字对齐方式
+/// 文字对齐方式
 let gAlignment:NSTextAlignment = .left
-// 垂直边距
+/// 垂直边距
 let gVMargin:CGFloat = 5.0
-// 水平边距
+/// 水平边距
 let gLMargin:CGFloat = 8.0
-// 圆角半径
+/// 圆角半径
 let gCornerRadius:CGFloat = 4.0
-// 箭头大小
+/// 箭头大小
 let gArrowSize:CGFloat = 8.0
-// 是否阴影
+/// 是否阴影
 let gHasShadow:Bool = true
-// 箭头方向
+/// 箭头方向
 let gArrowDirection:FLMenuViewArrowDirection = .down
-// 分割线颜色
+/// 分割线颜色
 let gSeparatorColor:UIColor = UIColor(red: 0.75, green: 0.75, blue: 0.75, alpha: 1.0)
-// 背景效果
+/// 背景效果
 let gBackgrounColorEffect:FLMenuBackgrounColorEffect = .solid
 
-
+/// 背景效果枚举
 enum FLMenuBackgrounColorEffect {
-    case solid       //!<背景显示效果.纯色
-    case Gradient    //!<背景显示效果.渐变叠加
+    ///<背景显示效果-纯色
+    case solid
+    ///<背景显示效果-渐变叠加>
+    case Gradient
 }
 
-//箭头方向枚举
+///箭头方向枚举
 enum FLMenuViewArrowDirection{
     case up
     case down
@@ -60,6 +62,9 @@ enum FLMenuViewArrowDirection{
 
 
 // MARK: - 最底层:Overlay类，覆盖全屏，提供点击取消菜单功能
+
+
+/// 基层：Overlay类，覆盖全屏，提供点击取消菜单功能
 class FLMenuOverlay:UIView{
     override init(frame:CGRect){
         super.init(frame: frame)
@@ -74,13 +79,18 @@ class FLMenuOverlay:UIView{
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        print("OverlayView被注销！")
+    }
+    
     //
     @objc func singleTap(recognizer:UITapGestureRecognizer){
-        for view in self.subviews{
-            if view.isKind(of: FLMenuView.self) && view.responds(to: #selector(FLMenuView.dismissMenu)){
-                view.perform(#selector(FLMenuView.dismissMenu), with: true)
-            }
-        }
+//        for view in self.subviews{
+//            if view.isKind(of: FLMenuView.self) && view.responds(to: #selector(FLMenuView.dismissMenu)){
+//                view.perform(#selector(FLMenuView.dismissMenu), with: true)
+//            }
+//        }
+        FLPopMenu.shared.dismissMenu(animated: true)
     }
     
 }
@@ -90,11 +100,11 @@ class FLMenuOverlay:UIView{
 // MARK: - 中间层:MenuView类
 class FLMenuView:UIView{
     // 背景view
-    var overlayView:UIView?
+    //var overlayView:UIView?
     // 内容view
     var contentView:UIView?
     // Menu按钮对象数组
-    var menuIrems:[FLMenuItem] = [FLMenuItem]()
+    var menuItems:[FLMenuItem] = [FLMenuItem]()
     // 文本字体
     var textFont:UIFont = FLPopMenu.textFont
     // 箭头方向
@@ -137,20 +147,19 @@ class FLMenuView:UIView{
     // 添加 Items
     func addItems (items:[FLMenuItem]) {
         if items.isEmpty {
-            print("MenuItems无内容！")
+            //print("MenuItems无内容！")
             contentView = nil
         }else{
-            menuIrems = items
+            menuItems = items
             contentView = makeContentView()
-            print(contentView?.frame)
+            //print(contentView?.frame)
         }
     }
-    
     
     // 在目标 view 中显示菜单
     func showMenuInView(view:UIView,fromRect:CGRect,animated:Bool = true){
         setupFrameInView(view: view, fromRect: fromRect)
-        print(contentView?.frame)
+        //print(contentView?.frame)
         let overlay = FLMenuOverlay(frame: view.frame)
         self.addSubview(contentView!)
         
@@ -192,7 +201,7 @@ class FLMenuView:UIView{
         
         // 检查是否有包含图标的item
         var hasIcon = false
-        for item in menuIrems {
+        for item in menuItems {
             if item.image != nil {
                 hasIcon = true
             }
@@ -219,18 +228,18 @@ class FLMenuView:UIView{
         let itemHeight = FLPopMenu.vMargin * 2 + textSize.height + vPlusForImg
         let itemWidth = FLPopMenu.lMargin * 2 + lPlusForImg + textSize.width
         // 计算contentRect
-        let contentRect = CGRect(x: 0, y: 0, width: itemWidth, height: itemHeight * CGFloat(menuIrems.count))
+        let contentRect = CGRect(x: 0, y: 0, width: itemWidth, height: itemHeight * CGFloat(menuItems.count))
         // 生成contentView
         let contentView = UIView(frame: contentRect)
         
-        for i in 0 ..< menuIrems.count {
+        for i in 0 ..< menuItems.count {
             var textRect:CGRect
             var img:UIImageView
-            if menuIrems[i].image != nil { // 有图标
+            if menuItems[i].image != nil { // 有图标
                 let imgRect = CGRect(x: FLPopMenu.lMargin, y: CGFloat(i) * itemHeight + FLPopMenu.vMargin, width: textSize.height + 2.0, height: textSize.height + 2.0)
                 img = UIImageView(frame: imgRect)
                 img.adjustsImageSizeForAccessibilityContentSizeCategory = false
-                img.image = menuIrems[i].image
+                img.image = menuItems[i].image
                 
                 //测试用
                 img.backgroundColor = UIColor.lightGray
@@ -238,16 +247,16 @@ class FLMenuView:UIView{
                 contentView.addSubview(img)
                 // 定位文字Label
                 let origin = CGPoint(x:textLabX,y:CGFloat(i) * itemHeight + FLPopMenu.vMargin + 2.0)
-                let size = menuIrems[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
+                let size = menuItems[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
                 textRect = CGRect(origin: origin, size: size)
             }else{ // 无图标
                 let origin = CGPoint(x:textLabX,y:CGFloat(i) * itemHeight + FLPopMenu.vMargin)
-                let size = menuIrems[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
+                let size = menuItems[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
                 textRect = CGRect(origin: origin, size: size)
             }
             
             let textLabel = UILabel(frame: textRect)
-            textLabel.text = menuIrems[i].title
+            textLabel.text = menuItems[i].title
             textLabel.textColor = FLPopMenu.textColor
             textLabel.font = FLPopMenu.textFont
             textLabel.textAlignment = FLPopMenu.alignment
@@ -257,7 +266,7 @@ class FLMenuView:UIView{
             
             contentView.addSubview(textLabel)
             
-            if i < menuIrems.count - 1 {
+            if i < menuItems.count - 1 {
                 let origin = CGPoint(x: FLPopMenu.lMargin, y: CGFloat(i + 1) * itemHeight - 0.5)
                 let size = CGSize(width: itemWidth - FLPopMenu.lMargin * 2.0, height: 0.5)
                 let seperator = UILabel(frame: CGRect(origin: origin, size: size))
@@ -269,7 +278,7 @@ class FLMenuView:UIView{
             let btnRect = CGRect(x: 0, y: CGFloat(i) * itemHeight, width: itemWidth, height: itemHeight)
             let btn = UIButton(frame: btnRect)
             btn.tag = i
-            btn.addTarget(self, action: #selector(performAction), for: .touchUpInside)
+            btn.addTarget(FLPopMenu.shared, action: #selector(FLPopMenu.performAction), for: .touchUpInside)
             //btn.backgroundColor = UIColor.blue
             contentView.addSubview(btn)
         }
@@ -647,16 +656,18 @@ class FLMenuView:UIView{
     }
     
     // 响应按钮点击，传递消息
-    @objc func performAction(sender:Any?){
-        self.dismissMenu(animated: true)
-        let btn = sender as! UIButton
-        let target = menuIrems[btn.tag].target as AnyObject
-        let action = menuIrems[btn.tag].action
-        if  target.responds(to: action) {
-            target.performSelector(onMainThread: action!, with: self, waitUntilDone: true)
-        }
-        
-    }
+//    @objc func performAction(sender:Any?){
+//        //self.dismissMenu(animated: true)
+//        let btn = sender as! UIButton
+//        let target = menuItems[btn.tag].target as AnyObject
+//        let action = menuItems[btn.tag].action
+//        FLPopMenu.shared.performSelector(onMainThread:#selector(FLPopMenu.dismissMenu), with: true, waitUntilDone: true)
+//        if  target.responds(to: action) {
+//            target.performSelector(onMainThread: action!, with: self, waitUntilDone: true)
+//            //target.perform( action!, with: self)
+//        }
+//
+//    }
     
     
     
@@ -664,14 +675,14 @@ class FLMenuView:UIView{
     //清除弹出菜单
     @objc func dismissMenu(animated:Bool){
         if self.superview != nil {
-            weak var weakSelf = self
-            func removeView () {
-                if (weakSelf?.superview?.isKind(of: FLMenuOverlay.self))! {
-                    weakSelf?.superview?.removeFromSuperview()
-                }
-                weakSelf?.removeFromSuperview()
-                
-            }
+//            weak var weakSelf = self
+//            func removeView () {
+//                if (weakSelf?.superview?.isKind(of: FLMenuOverlay.self))! {
+//                    weakSelf?.superview?.removeFromSuperview()
+//                }
+//                weakSelf?.removeFromSuperview()
+//
+//            }
             
             if animated {
                 //contentView?.isHidden = true
@@ -682,13 +693,23 @@ class FLMenuView:UIView{
                     self.transform = CGAffineTransform(a: 0.1, b: 0, c: 0, d: 0.1, tx: 0, ty: 0)
                     //self.frame = toFrame
                 }, completion: { finished in
-                    removeView()
+                    //removeView()
+                    if (self.superview?.isKind(of: FLMenuOverlay.self))! {
+                        self.superview?.removeFromSuperview()
+                    }
+                    
+                    self.removeFromSuperview()
                 })
             }else{
-                removeView()
+                //removeView()
+                if (self.superview?.isKind(of: FLMenuOverlay.self))! {
+                    self.superview?.removeFromSuperview()
+                }
+                
+                self.removeFromSuperview()
             }
         }
-        FLPopMenu.shared.isShow = false
+        //FLPopMenu.shared.isShow = false
     }
 }
 
@@ -785,7 +806,7 @@ class FLPopMenu:NSObject{
     
     // 向Menu中添加Item
     func addItems (items:[FLMenuItem]) {
-        print("向Menu中添加项目（\(items.count)个项目）")
+        //print("向Menu中添加项目（\(items.count)个项目）")
         if menuView != nil {
             menuView?.dismissMenu(animated: false)
             menuView = nil
@@ -793,8 +814,8 @@ class FLPopMenu:NSObject{
         
         menuView = FLMenuView()
         menuView?.addItems(items: items)
-        print("添加成功")
-        print(menuView?.contentView?.frame)
+        //print("添加成功")
+        //print(menuView?.contentView?.frame)
     }
     
 
@@ -817,19 +838,34 @@ class FLPopMenu:NSObject{
     
     
     // 清除弹出菜单
-    func dismissMenu(){
+    func dismissMenu(animated:Bool = true){
         if menuView != nil {
-            menuView?.dismissMenu(animated: false)
+            menuView?.dismissMenu(animated: animated)
             menuView = nil
         }
         
         self.isShow = false
     }
     
+    @objc func performAction(sender:Any?){
+        //self.dismissMenu(animated: true)
+        let btn = sender as! UIButton
+        let target = menuView?.menuItems[btn.tag].target as AnyObject
+        let action = menuView?.menuItems[btn.tag].action
+        dismissMenu(animated: false)
+        if  target.responds(to: action) {
+            target.performSelector(onMainThread: action!, with: self, waitUntilDone: false)
+            //target.perform( action!, with: self)
+        }
+        
+    }
+    
     // MARK: - 监听///////////////////////////////////////////////////
     
     @objc func orientationWillChange(notification:Notification) {
-        dismissMenu()
+        dismissMenu(animated: false)
     }
+    
+    
         
 }

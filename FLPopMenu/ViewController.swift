@@ -37,8 +37,8 @@ class ViewController: UIViewController {
         let btn3 = FLMenuItem(title: "我是三号，我有图标", image: #imageLiteral(resourceName: "Image"), target: self, action: #selector(menu3Tapped))
         
         
-        print("回到主界面啦！")
-        print(popMenu.menuView?.contentView?.frame)
+        //print("回到主界面啦！")
+        //print(popMenu.menuView?.contentView?.frame)
         let btn = sender as! UIButton
         popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
         
@@ -65,8 +65,8 @@ class ViewController: UIViewController {
         let btn3 = FLMenuItem(title: "我是三号，我有图标", image: #imageLiteral(resourceName: "Image"), target: self, action: #selector(menu3Tapped))
         FLPopMenu.arrowDirection = .left
         FLPopMenu.tintColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
-        print("回到主界面啦！")
-        print(popMenu.menuView?.contentView?.frame)
+        //print("回到主界面啦！")
+        //print(popMenu.menuView?.contentView?.frame)
         let btn = sender as! UIButton
         
         popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
@@ -82,8 +82,8 @@ class ViewController: UIViewController {
         FLPopMenu.arrowDirection = .up
         FLPopMenu.textColor = UIColor.red
         
-        print("回到主界面啦！")
-        print(popMenu.menuView?.contentView?.frame)
+        //print("回到主界面啦！")
+        //print(popMenu.menuView?.contentView?.frame)
         let btn = sender as! UIButton
         popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
         
@@ -98,8 +98,8 @@ class ViewController: UIViewController {
         FLPopMenu.arrowDirection = .right
         FLPopMenu.backgrounColorEffect = .Gradient
         
-        print("回到主界面啦！")
-        print(popMenu.menuView?.contentView?.frame)
+        //print("回到主界面啦！")
+        //print(popMenu.menuView?.contentView?.frame)
         let btn = sender as! UIButton
         popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
         
@@ -114,8 +114,8 @@ class ViewController: UIViewController {
         FLPopMenu.arrowDirection = .none
         FLPopMenu.textFont = UIFont.systemFont(ofSize: 20)
         
-        print("回到主界面啦！")
-        print(popMenu.menuView?.contentView?.frame)
+        //print("回到主界面啦！")
+        //print(popMenu.menuView?.contentView?.frame)
         let btn = sender as! UIButton
         popMenu.show(withIN: self.view, fromRect:btn.frame,items: [btn1,btn2,btn3])
         
