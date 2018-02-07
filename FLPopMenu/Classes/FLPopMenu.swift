@@ -14,7 +14,7 @@
 import Foundation
 import UIKit
 
-/// MARK: - 默认设置全局变量 ////////////////////////////////////////////////////
+// MARK: - 默认设置全局变量 ///////////////////////////////////////////////////////
 
 /// 主题颜色
 let gTintColor:UIColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
@@ -23,13 +23,13 @@ let gShadowColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1)
 /// 文字颜色
 let gTextColor:UIColor = UIColor.black
 /// 字体大小
-let gTextFontSize:CGFloat = 16.0
+let gTextFontSize:CGFloat = 18.0
 /// 文字对齐方式
 let gAlignment:NSTextAlignment = .left
 /// 垂直边距
-let gVMargin:CGFloat = 5.0
+let gVMargin:CGFloat = 10.0
 /// 水平边距
-let gLMargin:CGFloat = 8.0
+let gLMargin:CGFloat = 17.0
 /// 圆角半径
 let gCornerRadius:CGFloat = 4.0
 /// 箭头大小
@@ -61,7 +61,7 @@ enum FLMenuViewArrowDirection{
 }
 
 
-// MARK: - 最底层:Overlay类，覆盖全屏，提供点击取消菜单功能
+// MARK: - 基层:Overlay类，覆盖全屏，提供点击取消菜单功能
 
 
 /// 基层：Overlay类，覆盖全屏，提供点击取消菜单功能
@@ -70,7 +70,7 @@ class FLMenuOverlay:UIView{
         super.init(frame: frame)
         self.backgroundColor = UIColor.clear
         self.isOpaque = false
-        
+        // 添加点击手势，调用dismissMenu取消菜单
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(singleTap))
         self.addGestureRecognizer(gestureRecognizer)
     }
@@ -83,7 +83,7 @@ class FLMenuOverlay:UIView{
         print("OverlayView被注销！")
     }
     
-    //
+    /// 单击响应，调用shared单例的dismissMenu来取消菜单显示。
     @objc func singleTap(recognizer:UITapGestureRecognizer){
 //        for view in self.subviews{
 //            if view.isKind(of: FLMenuView.self) && view.responds(to: #selector(FLMenuView.dismissMenu)){
@@ -97,7 +97,7 @@ class FLMenuOverlay:UIView{
 
 
 
-// MARK: - 中间层:MenuView类
+// MARK: - 背景层:MenuView类 （内含内容view）
 class FLMenuView:UIView{
     // 背景view
     //var overlayView:UIView?
@@ -122,8 +122,10 @@ class FLMenuView:UIView{
     init(){
         super.init(frame: CGRect.zero)
         
+        // 透明背景
         self.backgroundColor = UIColor.clear
         self.isOpaque = true
+        // 起始于透明状态
         self.alpha = 0
         
         if FLPopMenu.hasShadow {
@@ -142,9 +144,10 @@ class FLMenuView:UIView{
         print("MenuView被注销！")
     }
     
+    
     // MARK: - 接口函数  //////////////////////////////////////////////////////
     
-    // 添加 Items
+    /// 内部接口：添加 Items ，调用私有函数 makeContentView 建立内容View
     func addItems (items:[FLMenuItem]) {
         if items.isEmpty {
             //print("MenuItems无内容！")
@@ -156,14 +159,17 @@ class FLMenuView:UIView{
         }
     }
     
-    // 在目标 view 中显示菜单
+    /// 内部接口：在目标 view 中显示菜单
     func showMenuInView(view:UIView,fromRect:CGRect,animated:Bool = true){
+        // 根据 fromView，contentView 设定 menuView 的位置，大小。
         setupFrameInView(view: view, fromRect: fromRect)
         //print(contentView?.frame)
         let overlay = FLMenuOverlay(frame: view.frame)
+        // 将 contentView 添加到 menuView 上
         self.addSubview(contentView!)
-        
+        // 将 menuView 添加到 overlayView 上（将自动调用被重载的 draw 函数）
         overlay.addSubview(self)
+        // 将 overlayView 添加到 目标view上（不能覆盖 navigationgBar ，ToolBar，TabBar）
         view.addSubview(overlay)
         
         //contentView?.isHidden = false
@@ -178,7 +184,10 @@ class FLMenuView:UIView{
         //let vOffset:CGFloat = self.frame.size.height / 2
         //let anchor:CGFloat = arrowPosition / self.frame.width
         //self.layer.anchorPoint = CGPoint(x: anchor, y: 1)
+        
+        // 先缩小（初始化时已设置为透明）
         self.transform = CGAffineTransform(a: 0.1, b: 0, c: 0, d: 0.1, tx: 0, ty: 0)
+        // 用动画恢复为正常大小，不透明
         UIView.animate(withDuration: 0.2, animations: {
             self.alpha = 1.0
             //self.transform = CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: lOffset, ty: vOffset)
@@ -193,7 +202,7 @@ class FLMenuView:UIView{
     
     // MARK: - 私有函数 ///////////////////////////////////////////////////////
     
-    // 生成contentView
+    /// 生成contentView
     func makeContentView() -> UIView {
         print("开始制作ContentView")
         // 计算最长文字的size，初始为（0，0）
@@ -215,59 +224,75 @@ class FLMenuView:UIView{
         // 菜单项如果含有图片，对item宽度和高度以及文字Label位置的影响
         var vPlusForImg:CGFloat = 0.0                 //垂直增量
         var lPlusForImg:CGFloat = 0.0                 //水平增量
-        var textLabX:CGFloat = FLPopMenu.lMargin      //文字Label的水平位置
+        var textLabX:CGFloat = FLPopMenu.lMargin      //文字Label的水平起始位置
         if hasIcon {
-            // 图标比文字高2.0
-            vPlusForImg = 2.0
-            // 图标高宽相等，再加上与文字的间隔：5.0
-            lPlusForImg = textSize.height + 2.0 + 5.0
+            // 图标与文字Label高度相同，上移1，总高度+1
+            vPlusForImg = 1.0
+            // 图标高宽相等，再加上与文字的间隔：8.0
+            lPlusForImg = textSize.height + 8.0
             //
-            textLabX = FLPopMenu.lMargin + lPlusForImg
+            textLabX += lPlusForImg
         }
         // 计算item的高度和宽度
         let itemHeight = FLPopMenu.vMargin * 2 + textSize.height + vPlusForImg
-        let itemWidth = FLPopMenu.lMargin * 2 + lPlusForImg + textSize.width
+        let itemWidth = FLPopMenu.lMargin * 2 + textSize.width + lPlusForImg + 2
         // 计算contentRect
         let contentRect = CGRect(x: 0, y: 0, width: itemWidth, height: itemHeight * CGFloat(menuItems.count))
         // 生成contentView
         let contentView = UIView(frame: contentRect)
         
+        // 按钮高亮时背景图片Rect
+        let imgRect = CGRect(x: 0, y: 0, width: itemWidth, height: itemHeight)
+        // 开始绘制图片
+        UIGraphicsBeginImageContext(imgRect.size)
+        let context = UIGraphicsGetCurrentContext()
+        let color = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.3)
+        context!.setFillColor(color.cgColor)
+        context!.fill(imgRect)
+        let selImg = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        // 添加每个 Item 的图片和文字
         for i in 0 ..< menuItems.count {
             var textRect:CGRect
             var img:UIImageView
             if menuItems[i].image != nil { // 有图标
-                let imgRect = CGRect(x: FLPopMenu.lMargin, y: CGFloat(i) * itemHeight + FLPopMenu.vMargin, width: textSize.height + 2.0, height: textSize.height + 2.0)
+                // 计算图标 Rect：
+                let imgRect = CGRect(x: FLPopMenu.lMargin, y: CGFloat(i) * itemHeight + FLPopMenu.vMargin, width: textSize.height , height: textSize.height)
+                // 生成图标对象
                 img = UIImageView(frame: imgRect)
-                img.adjustsImageSizeForAccessibilityContentSizeCategory = false
+                //img.adjustsImageSizeForAccessibilityContentSizeCategory = false
                 img.image = menuItems[i].image
                 
                 //测试用
-                img.backgroundColor = UIColor.lightGray
+                //img.backgroundColor = UIColor.lightGray
                 
+                //添加图标
                 contentView.addSubview(img)
-                // 定位文字Label
-                let origin = CGPoint(x:textLabX,y:CGFloat(i) * itemHeight + FLPopMenu.vMargin + 2.0)
-                let size = menuItems[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
-                textRect = CGRect(origin: origin, size: size)
-            }else{ // 无图标
-                let origin = CGPoint(x:textLabX,y:CGFloat(i) * itemHeight + FLPopMenu.vMargin)
-                let size = menuItems[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
-                textRect = CGRect(origin: origin, size: size)
             }
-            
+            // 定位文字Label
+            let origin = CGPoint(x:textLabX,y:CGFloat(i) * itemHeight + FLPopMenu.vMargin + 1.0)
+            let size = menuItems[i].title.size(withAttributes: [NSAttributedStringKey.font:textFont])
+            textRect = CGRect(origin: origin, size: size)
+            // 生成文字Label对象
             let textLabel = UILabel(frame: textRect)
+            // 设置文字，颜色，字体，对齐
             textLabel.text = menuItems[i].title
             textLabel.textColor = FLPopMenu.textColor
             textLabel.font = FLPopMenu.textFont
             textLabel.textAlignment = FLPopMenu.alignment
             
             //测试用
-            textLabel.backgroundColor = UIColor.lightGray
+            //textLabel.backgroundColor = UIColor.lightGray
             
+            // 添加文字Label
             contentView.addSubview(textLabel)
             
+            // 如果不是最后一行，添加分割线
             if i < menuItems.count - 1 {
+                // 分割线存在于每一行的最下面0.5
                 let origin = CGPoint(x: FLPopMenu.lMargin, y: CGFloat(i + 1) * itemHeight - 0.5)
+                // 宽度为总宽度 - 2*边距
                 let size = CGSize(width: itemWidth - FLPopMenu.lMargin * 2.0, height: 0.5)
                 let seperator = UILabel(frame: CGRect(origin: origin, size: size))
                 seperator.backgroundColor = FLPopMenu.separatorColor
@@ -277,12 +302,16 @@ class FLMenuView:UIView{
             // 添加按钮
             let btnRect = CGRect(x: 0, y: CGFloat(i) * itemHeight, width: itemWidth, height: itemHeight)
             let btn = UIButton(frame: btnRect)
+            // 设置为生成的高亮图片对象
+            btn.setBackgroundImage(selImg, for: .highlighted)
+            // 用于点击时识别的序号
             btn.tag = i
+            // 设置由 FLPopMenu 的单例对象的 performAction 函数响应点击
             btn.addTarget(FLPopMenu.shared, action: #selector(FLPopMenu.performAction), for: .touchUpInside)
             //btn.backgroundColor = UIColor.blue
             contentView.addSubview(btn)
         }
-        print(contentView.frame)
+        //print(contentView.frame)
         return contentView
     }
     
