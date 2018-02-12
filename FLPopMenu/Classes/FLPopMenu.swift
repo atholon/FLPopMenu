@@ -292,7 +292,7 @@ class FLMenuView:UIView{
             if i < menuItems.count - 1 {
                 // 分割线存在于每一行的最下面0.5
                 let origin = CGPoint(x: FLPopMenu.lMargin, y: CGFloat(i + 1) * itemHeight - 0.5)
-                // 宽度为总宽度 - 2*边距
+                // 分割线宽度为总宽度 - 2*边距
                 let size = CGSize(width: itemWidth - FLPopMenu.lMargin * 2.0, height: 0.5)
                 let seperator = UILabel(frame: CGRect(origin: origin, size: size))
                 seperator.backgroundColor = FLPopMenu.separatorColor
@@ -322,11 +322,15 @@ class FLMenuView:UIView{
         }
         print("状态栏高度：\(UIApplication.shared.statusBarFrame.height)")
         //let statusBarHeight = UIApplication.shared.statusBarFrame.height
+        
+        // 目前假设目标View为某个viewController，因此需考虑安全区顶部和底部的内缩。
+        // 安全区的顶部内缩（由 StatusBar 和 NavigationBar 引起）
         let topInset = view.safeAreaInsets.top
+        // 安全区的底部内缩（由 ToolBar 或 TabBar 引起）
         let bottomInset = view.safeAreaInsets.bottom
-        
+        // 获取内容view的尺寸
         let contentSize = contentView!.frame.size
-        
+        // 目标view的尺寸
         let outerWidth:CGFloat = view.bounds.size.width
         let outerHeight:CGFloat = view.bounds.size.height
         // 计算fromRect左上，右下，中心点在目标view中的坐标
@@ -337,106 +341,117 @@ class FLMenuView:UIView{
         let rectY1:CGFloat = fromRect.origin.y + fromRect.size.height
         let rectYM:CGFloat = fromRect.origin.y + fromRect.size.height * 0.5
         
+        // 加箭头的宽度（箭头左右时）
         let widthPlusArrow:CGFloat = contentSize.width + FLPopMenu.arrowSize
+        // 加箭头的高度（箭头上下时）
         let heightPlusArrow:CGFloat = contentSize.height + FLPopMenu.arrowSize
+        // 宽和高的一半
         let widthHalf:CGFloat = contentSize.width * 0.5
         let heightHalf:CGFloat = contentSize.height * 0.5
-        
+        // MenuView 距目标view边界的距离
         let kMargin:CGFloat = 5.0
         
         switch arrowDirection {
         case .up:
+            // MenuView左上角坐标（水平以fromView为中心，向下离开3）
             var point = CGPoint(x: rectXM - widthHalf, y: rectY1 + 3)
-            
+            // 确保不超出左边界
             if point.x < kMargin {
                 point.x = kMargin
             }
-            
+            // 确保不超出右边界
             if (point.x + contentSize.width + kMargin) > outerWidth {
                 point.x = outerWidth - contentSize.width - kMargin
             }
-            
+            // 箭头顶点在menuView中的水平位置
             arrowPosition = rectXM - point.x
+            // 下移内容view，留出箭头位置
             contentView?.frame.origin.y = FLPopMenu.arrowSize
-            
+            // 设定menuView的frame
             self.frame = CGRect(origin: point, size: CGSize(width: contentSize.width, height: heightPlusArrow))
             // 设置锚点并恢复frame
             let oldFrame = self.frame
             self.layer.anchorPoint = CGPoint(x: arrowPosition / contentSize.width, y: 0)
             self.frame = oldFrame
         case .down:
+            // MenuView左上角坐标（水平以fromView为中心，向上离开3）
             var point = CGPoint(x: rectXM - widthHalf, y: rectY0 - heightPlusArrow - 3)
-            
+            // 确保不超出左边界
             if point.x < kMargin {
                 point.x = kMargin
             }
-            
+            // 确保不超出右边界
             if (point.x + contentSize.width + kMargin) > outerWidth {
                 point.x = outerWidth - contentSize.width - kMargin
             }
-            
+            // 箭头顶点在menuView中的水平位置
             arrowPosition = rectXM - point.x
+            // 设定menuView的frame
             self.frame = CGRect(origin: point, size: CGSize(width: contentSize.width, height: contentSize.height + FLPopMenu.arrowSize))
             // 设置锚点并恢复frame
             let oldFrame = self.frame
             self.layer.anchorPoint = CGPoint(x: arrowPosition / contentSize.width, y: 1)
             self.frame = oldFrame
         case .left:
+            // MenuView左上角坐标（垂直以fromView为中心，向右离开3）
             var point = CGPoint(x: rectX1 + 3, y: rectYM - heightHalf)
-            
+            // 确保不超出上边界
             if point.y < kMargin + topInset {
                 point.y = kMargin + topInset
             }
-            
+            // 确保不超出下边界
             if (point.y + contentSize.height + kMargin) > outerHeight - bottomInset {
                 point.y = outerHeight - bottomInset - contentSize.height - kMargin
             }
-            
+            // 箭头顶点在menuView中的垂直位置
             arrowPosition = rectYM - point.y
+            // 右移内容view，留出箭头位置
             contentView?.frame.origin.x = FLPopMenu.arrowSize
-            
+            // 设定menuView的frame
             self.frame = CGRect(origin: point, size: CGSize(width: contentSize.width + FLPopMenu.arrowSize, height: contentSize.height))
             // 设置锚点并恢复frame
             let oldFrame = self.frame
             self.layer.anchorPoint = CGPoint(x: 0, y: arrowPosition / contentSize.height)
             self.frame = oldFrame
         case .right:
+            // MenuView左上角坐标（垂直以fromView为中心，向左离开3）
             var point = CGPoint(x: rectX0 - widthPlusArrow - 3, y: rectYM - heightHalf)
-            
+            // 确保不超出上边界
             if point.y < kMargin + topInset {
                 point.y = kMargin + topInset
             }
-            
+            // 确保不超出下边界
             if (point.y + contentSize.height + kMargin) > outerHeight - bottomInset {
                 point.y = outerHeight - bottomInset - contentSize.height - kMargin
             }
-            
+            // 箭头顶点在menuView中的垂直位置
             arrowPosition = rectYM - point.y
-            
+            // 设定menuView的frame
             self.frame = CGRect(origin: point, size: CGSize(width: contentSize.width + FLPopMenu.arrowSize, height: contentSize.height))
             // 设置锚点并恢复frame
             let oldFrame = self.frame
             self.layer.anchorPoint = CGPoint(x: 1, y: arrowPosition / contentSize.height)
             self.frame = oldFrame
         case .none:
+            // MenuView左上角坐标（垂直，水平以fromView为中心）
             var point = CGPoint(x: rectXM - widthHalf, y: rectYM - heightHalf)
-            
+            // 确保不超出左边界
             if point.x < kMargin {
                 point.x = kMargin
             }
-            
+            // 确保不超出右边界
             if (point.x + contentSize.width + kMargin) > outerWidth {
                 point.x = outerWidth - contentSize.width - kMargin
             }
-            
+            // 确保不超出上边界
             if point.y < kMargin + topInset {
                 point.y = kMargin + topInset
             }
-            
+            // 确保不超出下边界
             if (point.y + contentSize.height + kMargin) > outerHeight - bottomInset {
                 point.y = outerHeight - bottomInset - contentSize.height - kMargin
             }
-            
+            // 设定menuView的frame
             self.frame = CGRect(origin: point, size: contentSize)
             
         
@@ -519,19 +534,22 @@ class FLMenuView:UIView{
 //        }
     }
     
-    
+    /// 系统刻画menuView时自动调用，刻画自定义View
     override func draw(_ rect: CGRect){
         let context = UIGraphicsGetCurrentContext()
         if context != nil {
             drawBackground(withIn: self.bounds, inContext: context!)
             
         }
+        // 重置菜单各项属性，以备再次使用
         FLPopMenu.reset()
         
     }
     
+    // 刻画自定义 menuView
     func drawBackground(withIn frame:CGRect,inContext context:CGContext){
         let tintColor = FLPopMenu.tintColor
+        // 背景颜色和渐变色的R，G，B，Alpha分量
         var R0:CGFloat = 0.0
         var R1:CGFloat = 0.0
         var G0:CGFloat = 0.0
@@ -539,134 +557,145 @@ class FLMenuView:UIView{
         var B0:CGFloat = 0.0
         var B1:CGFloat = 0.0
         var a:CGFloat = 0.0
+        // 获取各分量
         tintColor.getRed(&R0, green: &G0, blue: &B0, alpha: &a)
         tintColor.getRed(&R1, green: &G1, blue: &B1, alpha: &a)
-        print(R0)
+        //print(R0)
+        
+        // 渐变效果时，渐变色比背景色暗0.2
         if FLPopMenu.backgrounColorEffect == .Gradient {
             R1 -= 0.2
             G1 -= 0.2
             B1 -= 0.2
         }
         
+        // menuView 的左上，右下坐标
         var X0 = frame.origin.x
         var X1 = frame.origin.x + frame.size.width
         var Y0 = frame.origin.y
         var Y1 = frame.origin.y + frame.size.height
-        
+        // 刻画箭头的路径对象
         let arrowPath = UIBezierPath()
         
-        let kEmbedFix:CGFloat = 3.0
+        // 箭头为等边三角形，高为 arrowSize，计算底边的一半
+        let arrowBaseHalf:CGFloat = FLPopMenu.arrowSize / 1.732
         
+        // 按不同的箭头方向画箭头
         switch arrowDirection {
         case .up:
-            
+            // 计算三角形各定点坐标
             let arrowXM = arrowPosition
-            let arrowX0 = arrowXM - FLPopMenu.arrowSize
-            let arrowX1 = arrowXM + FLPopMenu.arrowSize
+            let arrowX0 = arrowXM - arrowBaseHalf
+            let arrowX1 = arrowXM + arrowBaseHalf
             let arrowY0 = Y0
-            let arrowY1 = Y0 + FLPopMenu.arrowSize + kEmbedFix
-            
+            let arrowY1 = Y0 + FLPopMenu.arrowSize + 1.0   //加1.0为修正箭头与主体之间的缝隙
+            // 使用路径对象画三角形
             arrowPath.move(to: CGPoint(x: arrowXM, y: arrowY0))
             arrowPath.addLine(to: CGPoint(x: arrowX0, y: arrowY1))
             arrowPath.addLine(to: CGPoint(x: arrowX1, y: arrowY1))
             arrowPath.addLine(to: CGPoint(x: arrowXM, y: arrowY0))
-            
+            // 设定填充颜色，顶部三角形为原色
             tintColor.set()
-            
+            // menu 主体下移至三角形底部
             Y0 += FLPopMenu.arrowSize
             
         case .down:
-            
+            // 计算三角形各定点坐标
             let arrowXM = arrowPosition
-            let arrowX0 = arrowXM - FLPopMenu.arrowSize
-            let arrowX1 = arrowXM + FLPopMenu.arrowSize
-            let arrowY0 = Y1 - FLPopMenu.arrowSize - kEmbedFix
+            let arrowX0 = arrowXM - arrowBaseHalf
+            let arrowX1 = arrowXM + arrowBaseHalf
+            let arrowY0 = Y1 - FLPopMenu.arrowSize - 1.0  //减1.0为修正箭头与主体之间的缝隙
             let arrowY1 = Y1
-            
+            // 使用路径对象画三角形
             arrowPath.move(to: CGPoint(x: arrowXM, y: arrowY1))
             arrowPath.addLine(to: CGPoint(x: arrowX1, y: arrowY0))
             arrowPath.addLine(to: CGPoint(x: arrowX0, y: arrowY0))
             arrowPath.addLine(to: CGPoint(x: arrowXM, y: arrowY1))
-            
+            // 设定填充颜色，底部三角形为渐变色
             UIColor(red: R1, green: G1, blue: B1, alpha: 1).set()
-            
+            // menu 主体上移至三角形底部
             Y1 -= FLPopMenu.arrowSize
             
         case .left:
-            
+            // 计算三角形各定点坐标
             let arrowYM = arrowPosition
             let arrowX0 = X0
-            let arrowX1 = X0 + FLPopMenu.arrowSize + kEmbedFix
-            let arrowY0 = arrowYM - FLPopMenu.arrowSize
-            let arrowY1 = arrowYM + FLPopMenu.arrowSize
-            
+            let arrowX1 = X0 + FLPopMenu.arrowSize + 1.0    //加1.0为修正箭头与主体之间的缝隙
+            let arrowY0 = arrowYM - arrowBaseHalf
+            let arrowY1 = arrowYM + arrowBaseHalf
+            // 使用路径对象画三角形
             arrowPath.move(to: CGPoint(x: arrowX0, y: arrowYM))
             arrowPath.addLine(to: CGPoint(x: arrowX1, y: arrowY0))
             arrowPath.addLine(to: CGPoint(x: arrowX1, y: arrowY1))
             arrowPath.addLine(to: CGPoint(x: arrowX0, y: arrowYM))
-            
+            // 设定填充颜色，左边三角形为原色
             tintColor.set()
-            
+            // menu 主体右移至三角形底部
             X0 += FLPopMenu.arrowSize
             
         case .right:
-            
+            // 计算三角形各定点坐标
             let arrowYM = arrowPosition
             let arrowX0 = X1
-            let arrowX1 = X1 - FLPopMenu.arrowSize - kEmbedFix
-            let arrowY0 = arrowYM - FLPopMenu.arrowSize
-            let arrowY1 = arrowYM + FLPopMenu.arrowSize
-            
+            let arrowX1 = X1 - FLPopMenu.arrowSize - 1.0   //减1.0为修正箭头与主体之间的缝隙
+            let arrowY0 = arrowYM - arrowBaseHalf
+            let arrowY1 = arrowYM + arrowBaseHalf
+            // 使用路径对象画三角形
             arrowPath.move(to: CGPoint(x: arrowX0, y: arrowYM))
             arrowPath.addLine(to: CGPoint(x: arrowX1, y: arrowY0))
             arrowPath.addLine(to: CGPoint(x: arrowX1, y: arrowY1))
             arrowPath.addLine(to: CGPoint(x: arrowX0, y: arrowYM))
-            
+            // 设定填充颜色，右边三角形为渐变色
             UIColor(red: R1, green: G1, blue: B1, alpha: 1).set()
-            
+            // menu 主体左移至三角形底部
             X1 -= FLPopMenu.arrowSize
             
         case .none:
             break
         }
-        
+        // 刻画并填充三角形
         arrowPath.fill()
         
-        // render body
+        // 渲染主体
+        // 主体矩形frame
         let bodyFrame = CGRect(x: X0, y: Y0, width: X1 - X0, height: Y1 - Y0)
-        
+        // 生成圆角矩形path
         let borderPath = UIBezierPath(roundedRect: bodyFrame, cornerRadius: FLPopMenu.cornerRadius)
-        
+        // 两个渐变色的位置（0.0-1.0之间）
         let locations:[CGFloat] = [0.0,1.0]
+        // 两个渐变色的分量
         let components:[CGFloat] = [R0,G0,B0,1,
                                     R1,G1,B1,1]
-        
+        // 生成设备的色彩空间
         let colorSpace = CGColorSpaceCreateDeviceRGB()
+        // 生成渐变对象
         let gradient = CGGradient(colorSpace: colorSpace, colorComponents: components, locations: locations, count: locations.count)
         
         //CGColorSpaceRelease(colorSpace)
         
+        // 添加剪切，使后续的渐变渲染只在圆角rect内生效。
         borderPath.addClip()
-        
+        // 起点和终点
         var start:CGPoint
         var end:CGPoint
+        // 按箭头方向设置起点终点坐标
         if arrowDirection == .left || arrowDirection == .right {
-        
+            // 水平渐变
             start = CGPoint(x: X0, y: Y0)
             end = CGPoint(x: X1, y: Y0)
             
         }else{
-            
+            // 垂直渐变
             start = CGPoint(x: X0, y: Y0)
             end = CGPoint(x: X0, y: Y1)
             
         }
-        
+        // 渲染一个从起点到终点的线性渐变
         context.drawLinearGradient(gradient!, start: start, end: end, options: CGGradientDrawingOptions(rawValue: 0))
         
     }
     
-    // 生成 arrowPoint
+    /// 生成箭头顶点在父View中的坐标（目前没用上）
     func arrowPoint() -> CGPoint {
         var point:CGPoint
         switch arrowDirection {
@@ -701,8 +730,9 @@ class FLMenuView:UIView{
     
     
     
-    //清除弹出菜单
+    /// 清除弹出菜单
     @objc func dismissMenu(animated:Bool){
+        // 如果MenuView的父View为 nil ，说明menuView没有挂在任何view上，根本没有显示出来。不做任何操作。
         if self.superview != nil {
 //            weak var weakSelf = self
 //            func removeView () {
@@ -712,25 +742,28 @@ class FLMenuView:UIView{
 //                weakSelf?.removeFromSuperview()
 //
 //            }
-            
+            // 是否有动画效果
             if animated {
                 //contentView?.isHidden = true
                 //let toFrame = CGRect(origin: self.arrowPoint(), size: CGSize(width: 1.0, height: 1.0))
-                
+                // 设置菜单消失的动画效果
                 UIView.animate(withDuration: 0.2, animations: {
                     self.alpha = 0
                     self.transform = CGAffineTransform(a: 0.1, b: 0, c: 0, d: 0.1, tx: 0, ty: 0)
                     //self.frame = toFrame
                 }, completion: { finished in
-                    //removeView()
-                    if (self.superview?.isKind(of: FLMenuOverlay.self))! {
+                    // 动画结束后移除view
+                    if self.superview is FLMenuOverlay {
                         self.superview?.removeFromSuperview()
                     }
+//                    if (self.superview?.isKind(of: FLMenuOverlay.self))! {
+//                        self.superview?.removeFromSuperview()
+//                    }
                     
                     self.removeFromSuperview()
                 })
             }else{
-                //removeView()
+                // 无动画直接移除view
                 if (self.superview?.isKind(of: FLMenuOverlay.self))! {
                     self.superview?.removeFromSuperview()
                 }
@@ -746,11 +779,13 @@ class FLMenuView:UIView{
 
 
 
-// MARK: - 最上层:FLPopMenu类/////////////////////////////////////////////////////
+// MARK: - 接口层:FLPopMenu类/////////////////////////////////////////////////////
+
+/// 用户接口类，含有单实例 .shared ，各项静态属性供用户修改，使用 show 函数显示菜单。
 class FLPopMenu:NSObject{
     // 单例对象
     static var shared = FLPopMenu()
-    // 中间层 view 实例
+    // 菜单 menuView 实例
     var menuView:FLMenuView?
     // 是否被监听
     var isObserving = false
@@ -794,18 +829,18 @@ class FLPopMenu:NSObject{
     // MARK: - 构造，析构函数//////////////////////////////////////////
     
     // 构造函数（单例类，设置为private）
-    private override init(){
-        print("PopMenu被创建")
-    }
+//    private override init(){
+//        print("PopMenu被创建")
+//    }
     
     // 析构函数
-    deinit{
-        print("注销PopMenu")
-    }
+//    deinit{
+//        print("注销PopMenu")
+//    }
     
     // MARK: - 接口函数/////////////////////////////////////////////
     
-    // 显示PopMenu
+    /// 显示PopMenu（view：添加菜单的页面的 view 对象；fromRect：箭头所指向的矩形；items：菜单项数组；animated：是否动画效果）
     func show(withIN view:UIView,fromRect rect:CGRect,items:[FLMenuItem],animated:Bool = true){
 //        if menuView != nil {
 //            menuView?.dismissMenu(animated: false)
@@ -816,9 +851,6 @@ class FLPopMenu:NSObject{
 //            isObserving = true
 //            NotificationCenter.default.addObserver(self, selector: #selector(orientationWillChange), name: NSNotification.Name.UIApplicationWillChangeStatusBarOrientation, object: nil)
 //        }
-        
-        // 创建 MenuView
-        //menuView = FLMenuView()
         
         // 添加menuItems
         addItems(items: items)
@@ -836,19 +868,21 @@ class FLPopMenu:NSObject{
     // 向Menu中添加Item
     func addItems (items:[FLMenuItem]) {
         //print("向Menu中添加项目（\(items.count)个项目）")
+        // 如果menuView不是nil，说明菜单正在显示，取消之。
         if menuView != nil {
             menuView?.dismissMenu(animated: false)
             menuView = nil
         }
-        
+        // 建立新的实例
         menuView = FLMenuView()
+        // 添加菜单项
         menuView?.addItems(items: items)
         //print("添加成功")
         //print(menuView?.contentView?.frame)
     }
     
 
-    // 重置属性
+    /// 将PopMenu的各项属性重置为默认值
     class func reset(){
         FLPopMenu.tintColor = gTintColor
         FLPopMenu.shadowColor = gShadowColor
@@ -878,10 +912,13 @@ class FLPopMenu:NSObject{
     
     @objc func performAction(sender:Any?){
         //self.dismissMenu(animated: true)
+        // 获取按钮的 target 和 action
         let btn = sender as! UIButton
         let target = menuView?.menuItems[btn.tag].target as AnyObject
         let action = menuView?.menuItems[btn.tag].action
+        // 清除弹出菜单
         dismissMenu(animated: false)
+        // 如果有相应的处理函数，发送消息
         if  target.responds(to: action) {
             target.performSelector(onMainThread: action!, with: self, waitUntilDone: false)
             //target.perform( action!, with: self)
@@ -891,6 +928,7 @@ class FLPopMenu:NSObject{
     
     // MARK: - 监听///////////////////////////////////////////////////
     
+    /// 监听到横竖屏事件后取消菜单显示
     @objc func orientationWillChange(notification:Notification) {
         dismissMenu(animated: false)
     }
